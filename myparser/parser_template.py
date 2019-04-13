@@ -1,3 +1,4 @@
+import socket
 import threading
 import time
 import urllib.error
@@ -20,8 +21,7 @@ class ParserTemplate:
 
     def _print_progress(self):
         ratio = 100 * self.progress_cnt // self.all_chapter_num
-        print('[{done}{notdone}]{cnt}/{all}'.format(done='#' * ratio,
-                                                    notdone=' ' * (100 - ratio),
+        print('[{done:<100}]{cnt}/{all}'.format(done='#' * ratio,
                                                     cnt=self.progress_cnt,
                                                     all=self.all_chapter_num))
 
@@ -64,7 +64,7 @@ class ParserTemplate:
                 self.progress_cnt += 1
                 self.lock.release()
                 self._print_progress()
-        except urllib.error.HTTPError:
+        except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout):
             self.failed_set.add(detail_url)
 
     @staticmethod

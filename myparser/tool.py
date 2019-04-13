@@ -4,6 +4,7 @@ import os
 import random
 import re
 import shutil
+import socket
 import time
 import urllib.error
 import urllib.request
@@ -76,10 +77,10 @@ class CommonTool:
                 headers = copy.deepcopy(cls.HEADERS)
                 headers['User-Agent'] = random.choice(cls.USER_AGENT)
                 req = urllib.request.Request(url, headers=headers)
-                response = urllib.request.urlopen(req)
+                response = urllib.request.urlopen(req, timeout=8)
                 data = response.read()
                 break
-            except urllib.error.HTTPError as e:
+            except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout) as e:
                 retry_cnt += 1
                 time.sleep(1)
                 # 失败已达最大次数

@@ -32,7 +32,7 @@ class QuanShuWang(ParserTemplate):
         doc = pq.PyQuery(result)
         # 内存去重
         detail_urls = set()
-        for a in doc('#chapter > div.chapterSo > div.chapterNum > ul > div.clearfix.dirconone > li > a').items():
+        for a in doc('#chapter > div.chapterSo > div.chapterNum > ul > div.clearfix.dirconone  li > a').items():
             detail_url = a.attr.href
             if detail_url in detail_urls:
                 # 去重
