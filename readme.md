@@ -5,8 +5,9 @@
 从盗版小说网站，将需要的小说所有章节打包下载。
 目前已支持：
 - www.biquge5200.cc
-- www.booktxt.net(不推荐)
-- www.quanshuwang.com(推荐)
+- www.booktxt.net (不推荐)
+- www.quanshuwang.com (推荐)
+- www.kanunu8.com
 
 推荐追小说方法：
 使用爬虫下载所有章节，同时RSS订阅该小说。
