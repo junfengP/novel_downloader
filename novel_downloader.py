@@ -17,17 +17,12 @@ def main():
     ap.add_argument('-url', required=True, help="URL of novel catalog")
     ap.add_argument('-o', '--output', type=str, default="all.txt", help="Output filename. Default: all.txt")
     ap.add_argument('-t', '--thread-limit', type=int, default=1, help="Thread limit. Default: 1")
-    ap.add_argument('--merge', type=bool, default=False, help="To merge all chapters into a file.")
+
     args = vars(ap.parse_args())
     url = args.get('url')
     output = args.get('output')
-    merge = args.get('merge')
     thread_limit = args.get('thread_limit')
-    if merge:
-        print("Start merging chapters.")
-        CommonTool.merge_all_chapters(output)
-        print("Merged. Enjoy reading!")
-        exit(0)
+
     solution = None
     for web in SUPPORTED_WEBSITE:
         if web in url:

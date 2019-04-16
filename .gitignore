@@ -105,5 +105,8 @@ venv.bak/
 
 # pycharm
 .idea
-all.txt
 temp
+
+
+*.txt
+!/requirements.txt

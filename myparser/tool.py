@@ -127,10 +127,11 @@ class CommonTool:
         :return:  无
         """
         with open(output_name, 'w', encoding='utf-8') as f:
-            for chapter in os.listdir(cls.TEMP_DIR):
+            # 修复ubuntu下 文件默认排序是按照时间排序的bug
+            for chapter in sorted(os.listdir(cls.TEMP_DIR)):
                 with open(os.path.join(cls.TEMP_DIR, chapter), 'r', encoding='utf-8') as c:
                     f.write(c.read())
-                    f.write('\n')
+                    f.write('\n\n')
 
     @classmethod
     def fix_title(cls, title):
@@ -151,5 +152,10 @@ class CommonTool:
             chapter_title = result.group(2)
             fix_title = "第%s章%s" % (chapter_no, chapter_title)
             return fix_title
+        # 匹配 xyzf 第xxx章 yyyy  这类标题，标题前有垃圾
+        pattern = r".*(第.*章.*)"
+        result = re.match(pattern, title)
+        if result:
+            title = result.group(1)
         # 无法修复格式
         return title
