@@ -8,7 +8,6 @@
 @desc:
 """
 import argparse
-from myparser.tool import CommonTool
 from myparser.config import SUPPORTED_WEBSITE, MAP_CLASS
 
 
