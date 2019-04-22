@@ -29,7 +29,7 @@ class Kannunu(ParserTemplate):
             content = doc('#Article > div > p:not([align])').text()
             content = content.replace('  ', '\n')
 
-        return title + '\n' * 3 + content
+        return title, content
 
     def _parse_catalog(self):
         """

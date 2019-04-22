@@ -8,6 +8,9 @@ import socket
 import time
 import urllib.error
 import urllib.request
+import os.path
+
+from myparser.defined_exceptions import FetchFailedException
 
 
 class CommonTool:
@@ -80,12 +83,12 @@ class CommonTool:
                 response = urllib.request.urlopen(req, timeout=8)
                 data = response.read()
                 break
-            except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout) as e:
+            except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout):
                 retry_cnt += 1
                 time.sleep(1)
                 # 失败已达最大次数
                 if not (retry_cnt < cls.RETRY_TIMES):
-                    raise e
+                    raise FetchFailedException()
         # 尝试解码数据
         try:
             result = gzip.decompress(data).decode('gbk')
@@ -159,3 +162,45 @@ class CommonTool:
             title = result.group(1)
         # 无法修复格式
         return title
+
+    @classmethod
+    def check_completion(cls, catalog_list):
+        # 返回值 确定下载是否完整
+        flag = True
+        # 获得已下载章节链接尾缀
+        downloaded = os.listdir(cls.TEMP_DIR)
+
+        # 检验文件大小 是否 0B
+        for f in downloaded:
+            f = os.path.join(cls.TEMP_DIR, f)
+            # 空文件 则说明下载不完整
+            if 0 == os.path.getsize(f):
+                flag = False
+                # 删除空文件
+                os.remove(f)
+                print("remove: " + f)
+
+        # 去除空文件后 重新获得 已下载章节连接尾缀
+        downloaded = os.listdir(cls.TEMP_DIR)
+
+        # 章节数量不对等 说明缺失章节
+        if len(downloaded) != len(catalog_list):
+            print("download:{d}, catalog:{c}".format(d=len(downloaded), c=len(catalog_list)))
+            flag = False
+
+        return flag
+
+    @classmethod
+    def get_not_downloaded_chapters(cls, catalog_list):
+        result = list()
+        # 获得已下载章节链接尾缀
+        downloaded = os.listdir(cls.TEMP_DIR)
+        # 检查各个章节链接是否已经下载
+        for u in catalog_list:
+            # 该章节 未下载
+            if u.split(r'/')[-1] not in downloaded:
+                result.append(u)
+
+        return result
+
+

@@ -17,11 +17,14 @@ def main():
     ap.add_argument('-url', required=True, help="URL of novel catalog")
     ap.add_argument('-o', '--output', type=str, default="all.txt", help="Output filename. Default: all.txt")
     ap.add_argument('-t', '--thread-limit', type=int, default=1, help="Thread limit. Default: 1")
+    ap.add_argument('--fix', type=bool, default=False,
+                    help="When missing chapters use this argument to fix. --fix=true")
 
     args = vars(ap.parse_args())
     url = args.get('url')
     output = args.get('output')
     thread_limit = args.get('thread_limit')
+    fix = args.get('fix')
 
     solution = None
     for web in SUPPORTED_WEBSITE:
@@ -31,7 +34,10 @@ def main():
         print("Sorry, the url website is not supported yet.")
     else:
         novel = solution(catalog_url=url, output_name=output, max_thread_limit=thread_limit)
-        novel.start()
+        if fix:
+            novel.fix_mode()
+        else:
+            novel.start()
 
 
 if __name__ == '__main__':

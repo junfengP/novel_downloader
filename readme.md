@@ -35,7 +35,7 @@ python3 novel_downloader.py -url 小说目录页
 ## 参数说明
 ```
 usage: novel_downloader.py [-h] -url URL [-o OUTPUT] [-t THREAD_LIMIT]
-                           [--merge MERGE]
+                           [--fix FIX]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -44,5 +44,6 @@ optional arguments:
                         Output filename. Default: all.txt
   -t THREAD_LIMIT, --thread-limit THREAD_LIMIT
                         Thread limit. Default: 1
-  --merge MERGE         To merge all chapters into a file.
+  --fix FIX             When missing chapters use this argument to fix. --fix=true 
+
 ```

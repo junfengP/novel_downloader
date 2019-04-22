@@ -21,7 +21,7 @@ class QuanShuWang(ParserTemplate):
         title = CommonTool.fix_title(title)
         content = doc('#content').text()
         content = content.replace('style6();', '').replace('style5();', '')
-        return title + '\n' * 3 + content
+        return title, content
 
     def _parse_catalog(self):
         """

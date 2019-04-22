@@ -22,7 +22,7 @@ class Booktxt(ParserTemplate):
         title = doc('#wrapper > div.content_read > div > div.bookname > h1').text()
         title = CommonTool.fix_title(title)
         content = doc('#content').text()
-        return title + '\n' * 3 + content
+        return title, content
 
     def _parse_catalog(self):
         """

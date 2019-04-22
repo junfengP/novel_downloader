@@ -1,5 +1,6 @@
 import pyquery.pyquery as pq
 
+from myparser.defined_exceptions import EmptyContentException
 from myparser.parser_template import ParserTemplate
 from myparser.tool import CommonTool
 
@@ -21,7 +22,7 @@ class Biquge5200(ParserTemplate):
         title = doc('#wrapper > div.content_read > div > div.bookname > h1').text()
         title = CommonTool.fix_title(title)
         content = doc('#content').text()
-        return title + '\n' * 3 + content
+        return title, content
 
     def _parse_catalog(self):
         """

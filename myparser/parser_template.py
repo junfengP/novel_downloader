@@ -1,10 +1,9 @@
-import socket
 import threading
 import time
-import urllib.error
 import threadpool
 
 from myparser.tool import CommonTool
+from myparser.defined_exceptions import FetchFailedException, EmptyContentException
 
 
 class ParserTemplate:
@@ -22,8 +21,8 @@ class ParserTemplate:
     def _print_progress(self):
         ratio = 100 * self.progress_cnt // self.all_chapter_num
         print('[{done:<100}]{cnt}/{all}'.format(done='#' * ratio,
-                                                    cnt=self.progress_cnt,
-                                                    all=self.all_chapter_num))
+                                                cnt=self.progress_cnt,
+                                                all=self.all_chapter_num))
 
     def start(self):
         start_time = time.time()
@@ -38,24 +37,64 @@ class ParserTemplate:
         [self.pool.putRequest(req) for req in requests]
         # 等待所有章节抓取完成
         self.pool.wait()
-        while self.progress_cnt < self.all_chapter_num:
+
+        retry_max = 3
+        retry_cnt = 0
+        # 进行3次重试， 若无法下载完整，使用 --fix 模式
+        while (self.progress_cnt < self.all_chapter_num) and (retry_cnt < retry_max):
+            retry_cnt += 1
             print("Retry failed set. Len: " + str(len(self.failed_set)))
             retry, self.failed_set = self.failed_set, set()
             requests = threadpool.makeRequests(self._get_detail, retry)
             [self.pool.putRequest(req) for req in requests]
             # 等待所有章节抓取完成
             self.pool.wait()
-        # 合并全文
-        CommonTool.merge_all_chapters(self.output_name)
-        print("novel download finished!")
+
+        print("Checking download completeness...")
+        if CommonTool.check_completion(detail_urls):
+            # 合并全文
+            print("All chapters are downloaded successfully. Start merging ...")
+            CommonTool.merge_all_chapters(self.output_name)
+            print("Merged. Enjoy reading!")
+        else:
+            print("Some chapters download failed.")
+            print("Try python novel_download.py -url URL --fix")
+        print("Total cost %.2fs" % (time.time() - start_time))
+
+    def fix_mode(self):
+        start_time = time.time()
+        print("Fix mode.")
+        # 获取所有详细内容链接
+        detail_urls = self._parse_catalog()
+        redownload_urls = CommonTool.get_not_downloaded_chapters(detail_urls)
+        print(redownload_urls)
+        print("Get novel chapters: " + str(len(redownload_urls)))
+        self.all_chapter_num = len(redownload_urls)
+        # 使用threadpool 控制多线程数量
+        requests = threadpool.makeRequests(self._get_detail, redownload_urls)
+        [self.pool.putRequest(req) for req in requests]
+        # 等待所有章节抓取完成
+        self.pool.wait()
+
+        print("Checking download completeness...")
+        if CommonTool.check_completion(detail_urls):
+            # 合并全文
+            print("All chapters are downloaded successfully. Start merging ...")
+            CommonTool.merge_all_chapters(self.output_name)
+            print("Merged. Enjoy reading!")
+        else:
+            print("Some chapters download failed.")
+            print("Try: python novel_download.py -url URL -t THREAD_LIMIT --fix=true")
         print("Total cost %.2fs" % (time.time() - start_time))
 
     def _get_detail(self, detail_url):
         # print(detail_url)
         time.sleep(0.5)
         try:
+            # this will raise FetchFailedException
             content = CommonTool.fetch_page(detail_url)
-            result = self._parse_detail(content)
+            # this will raise EmptyContentException
+            result = self._check_parse_detail(content)
             # 小说章节末尾链接作为临时储存文件名
             filename = detail_url.split('/')[-1]
             # 暂存章节至文件
@@ -64,8 +103,24 @@ class ParserTemplate:
                 self.progress_cnt += 1
                 self.lock.release()
                 self._print_progress()
-        except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout):
+        except FetchFailedException:
             self.failed_set.add(detail_url)
+        except EmptyContentException:
+            self.failed_set.add(detail_url)
+
+    def _check_parse_detail(self, content):
+        """
+        调用 _parse_detail 获取章节标题和内容 并进行检查。
+        若标题或内容为空 则触发 EmptyContentException
+        :param content:
+        :return:
+        """
+        title, content = self._parse_detail(content)
+        if (title is None) or (title == ""):
+            raise EmptyContentException()
+        if (content is None) or (content == ""):
+            raise EmptyContentException()
+        return title + '\n' * 3 + content
 
     @staticmethod
     def _parse_detail(content):
