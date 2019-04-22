@@ -110,3 +110,5 @@ temp
 
 *.txt
 !/requirements.txt
+
+app.log

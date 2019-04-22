@@ -1,5 +1,6 @@
 import copy
 import gzip
+import logging
 import os
 import random
 import re
@@ -62,6 +63,9 @@ class CommonTool:
     ]
     TEMP_DIR = os.path.join(os.curdir, "temp")
     RETRY_TIMES = 3
+
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.NullHandler)
 
     @classmethod
     def fetch_page(cls, url):
@@ -178,14 +182,16 @@ class CommonTool:
                 flag = False
                 # 删除空文件
                 os.remove(f)
-                print("remove: " + f)
+                cls.logger.debug("remove: " + f)
 
         # 去除空文件后 重新获得 已下载章节连接尾缀
         downloaded = os.listdir(cls.TEMP_DIR)
 
         # 章节数量不对等 说明缺失章节
-        if len(downloaded) != len(catalog_list):
-            print("download:{d}, catalog:{c}".format(d=len(downloaded), c=len(catalog_list)))
+        if len(downloaded) < len(catalog_list):
+            cls.logger.debug("download:{d}, catalog:{c}"
+                             .format(d=len(downloaded),
+                                     c=len(catalog_list)))
             flag = False
 
         return flag
@@ -202,5 +208,3 @@ class CommonTool:
                 result.append(u)
 
         return result
-
-

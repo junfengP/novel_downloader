@@ -9,9 +9,10 @@
 """
 import argparse
 from myparser.config import SUPPORTED_WEBSITE, MAP_CLASS
-
+import logging.config
 
 def main():
+    logging.config.fileConfig('logger.conf')
     ap = argparse.ArgumentParser()
     ap.add_argument('-url', required=True, help="URL of novel catalog")
     ap.add_argument('-o', '--output', type=str, default="all.txt", help="Output filename. Default: all.txt")
@@ -30,7 +31,7 @@ def main():
         if web in url:
             solution = MAP_CLASS.get(web)
     if solution is None:
-        print("Sorry, the url website is not supported yet.")
+        logging.fatal("Sorry, the url website is not supported yet.")
     else:
         novel = solution(catalog_url=url, output_name=output, max_thread_limit=thread_limit)
         if fix:
