@@ -124,9 +124,9 @@ class ParserTemplate:
                 self.progress_cnt += 1
                 self.lock.release()
                 self._print_progress()
-        except FetchFailedException:
+        except FetchFailedException as e:
             self.failed_set.add(detail_url)
-            self.logger.debug("Fetch failed: " + detail_url)
+            self.logger.debug("Fetch failed: " + detail_url + ". " + str(e))
         except EmptyContentException:
             self.failed_set.add(detail_url)
             self.logger.debug("Empty content: " + detail_url)
