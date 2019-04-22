@@ -84,7 +84,7 @@ class ParserTemplate:
         # 获取所有详细内容链接
         detail_urls = self._parse_catalog()
         redownload_urls = CommonTool.get_not_downloaded_chapters(detail_urls)
-        self.logger.debug("redownload: " + redownload_urls)
+        self.logger.debug("redownload: " + str(redownload_urls))
         self.logger.info("Get novel chapters: " + str(len(redownload_urls)))
         self.all_chapter_num = len(redownload_urls)
         # 使用threadpool 控制多线程数量
@@ -140,9 +140,9 @@ class ParserTemplate:
         """
         title, content = self._parse_detail(content)
         if (title is None) or (title == ""):
-            raise EmptyContentException()
+            raise EmptyContentException("Empty title")
         if (content is None) or (content == ""):
-            raise EmptyContentException()
+            raise EmptyContentException("Empty text")
         return title + '\n' * 3 + content
 
     @staticmethod

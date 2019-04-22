@@ -12,7 +12,7 @@ class MyBaseException(Exception):
 
 
 class FetchFailedException(MyBaseException):
-    def __init__(self, message):
+    def __init__(self, message=None):
         super().__init__(message)
 
     def __str__(self):
@@ -23,7 +23,7 @@ class FetchFailedException(MyBaseException):
 
 
 class EmptyContentException(MyBaseException):
-    def __init__(self, message):
+    def __init__(self, message=None):
         super().__init__(message)
 
     def __str__(self):
